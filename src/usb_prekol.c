@@ -1,22 +1,24 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/sched.h>
-#include <linux/sched/signal.h>
-#include <linux/string.h>
 #include <linux/kprobes.h>
+#include <linux/string.h>
+#include <linux/fs.h>
 #include "usb_prekol.h"
 
 static int handle_process(struct kprobe *p, struct pt_regs *regs)
 {
     struct task_struct *task = current;
 
-    printk(KERN_INFO "Process %s started with PID %d\n", task->comm, task->pid);
+    if (strcmp(task->comm, TARGET_PROCESS) == 0) {
+        disable_all_usb();
+    }
 
     return 0;
 }
 
 static struct kprobe kp = {
-    .symbol_name = "__x64_sys_execve",
+    .symbol_name = EXECVE_SYMBOL,
     .pre_handler = handle_process,
 };
 
@@ -30,14 +32,14 @@ static int __init usb_prekol_init(void)
         return ret;
     }
 
-    printk(KERN_INFO "Process tracker module loaded\n");
+    printk(KERN_INFO "USB PREKOL module loaded\n");
     return 0;
 }
 
 static void __exit usb_prekol_exit(void)
 {
     unregister_kprobe(&kp);
-    printk(KERN_INFO "Process tracker module unloaded\n");
+    printk(KERN_INFO "USB PREKOL module unloaded\n");
 }
 
 module_init(usb_prekol_init);
