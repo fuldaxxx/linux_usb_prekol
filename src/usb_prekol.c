@@ -8,7 +8,6 @@
 #include <linux/delay.h>
 #include "usb_prekol.h"
 
-
 static int disable_usb(struct usb_device *udev, void *data)
 {
     usb_set_device_state(udev, USB_STATE_NOTATTACHED);
