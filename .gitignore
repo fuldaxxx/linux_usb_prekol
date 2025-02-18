@@ -1,0 +1,4 @@
+.idea/
+*.module-common.o
+*.ko
+*.mod
